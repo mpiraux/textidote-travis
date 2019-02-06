@@ -1,0 +1,11 @@
+dist: xenial
+language: java
+
+install:
+  - curl https://github.com/sylvainhalle/textidote/releases/download/v0.7.1/textidote_0.7.1_all.deb -O -L
+  - git --no-pager diff --name-only $TRAVIS_BRANCH > .travis_deps/modified_files
+  - sudo dpkg -i textidote_0.7.1_all.deb
+  - sudo apt install -f -y
+
+script:
+  - make check
