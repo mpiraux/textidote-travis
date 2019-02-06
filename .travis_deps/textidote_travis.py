@@ -4,6 +4,12 @@ import subprocess
 import os.path
 import sys
 
+whitelist = None
+whitelist_path = os.path.join(os.path.dirname(__file__), 'modified_files')
+if os.path.exists(whitelist_path) and os.environ['TRAVIS_PULL_REQUEST'] != 'false':
+    with open(whitelist_path) as f:
+        whitelist = [l.strip() for l in f.readlines()]
+
 
 def run(cmd):
     p = subprocess.run(cmd, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
@@ -28,9 +34,10 @@ for s in config.sections():
             _, ext = os.path.splitext(k)
             if ext != '.tex':
                 ext = '.md'
-            l = file_types.get(ext, [])
-            l.append(k)
-            file_types[ext] = l
+            if whitelist is None or k in whitelist:
+                l = file_types.get(ext, [])
+                l.append(k)
+                file_types[ext] = l
 
     for t, files in file_types.items():
         output_file = '{}{}.txt'.format(s, t)
